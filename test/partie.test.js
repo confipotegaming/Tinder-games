@@ -29,10 +29,19 @@ test('deux joueurs, un match', async () => {
     const { cartes } = await cartesTom;
     assert.ok(cartes.every((c) => c.id.startsWith('bga-') && c.joueurs[0] <= 2 && c.joueurs[1] >= 2));
 
+    // Avec des réponses aux questions : seulement des jeux coop pour 4, et un message si rien ne va.
+    const coop = attendre(tom, 'cartes');
+    assert.deepEqual(await emettre(lea, 'lancer', { categorie: 'bga', criteres: { joueurs: 4, envies: ['coop'] } }), {});
+    assert.ok((await coop).cartes.every((c) => c.envies.includes('coop') && c.joueurs[1] >= 4));
+    assert.match((await emettre(lea, 'lancer', { categorie: 'web', criteres: { joueurs: 1, envies: ['bluff'] } })).erreur, /Aucun jeu/);
+    const nouvelles = attendre(tom, 'cartes');
+    await emettre(lea, 'lancer', { categorie: 'bga', criteres: { joueurs: 2 } });
+    const { cartes: cartes2 } = await nouvelles;
+
     const match = attendre(lea, 'match');
-    lea.emit('voter', { carteId: cartes[0].id, oui: true });
-    tom.emit('voter', { carteId: cartes[0].id, oui: true });
-    assert.equal((await match).id, cartes[0].id);
+    lea.emit('voter', { carteId: cartes2[0].id, oui: true });
+    tom.emit('voter', { carteId: cartes2[0].id, oui: true });
+    assert.equal((await match).id, cartes2[0].id);
   } finally {
     lea.close();
     tom.close();

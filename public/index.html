@@ -38,11 +38,37 @@
     <ul id="joueurs" class="joueurs"></ul>
 
     <div id="choix-hote">
-      <h2>On swipe quoi ?</h2>
-      <div class="categories">
-        <button data-categorie="steam">🎮<span>Jeux Steam</span><small>en commun</small></button>
-        <button data-categorie="web">🌐<span>Jeux web</span><small>skribbl, blind test…</small></button>
-        <button data-categorie="bga">🎲<span>Board Game Arena</span></button>
+      <!-- Étape 1 : la catégorie -->
+      <div id="etape-categories">
+        <h2>On swipe quoi ?</h2>
+        <div class="categories">
+          <button data-categorie="steam">🎮<span>Jeux Steam</span><small>en commun</small></button>
+          <button data-categorie="web">🌐<span>Jeux web</span><small>skribbl, blind test…</small></button>
+          <button data-categorie="bga">🎲<span>Board Game Arena</span></button>
+        </div>
+      </div>
+
+      <!-- Étape 2 : quelques questions pour trier les jeux -->
+      <div id="etape-questions" class="questions" hidden>
+        <h2 id="titre-questions"></h2>
+
+        <p class="question">Combien de joueurs ?</p>
+        <div class="compteur">
+          <button id="bouton-moins" aria-label="Un joueur de moins">−</button>
+          <span id="nombre-joueurs">2</span>
+          <button id="bouton-plus" aria-label="Un joueur de plus">+</button>
+        </div>
+
+        <p class="question">Envie de quoi ? <small>Plusieurs choix possibles. Rien de coché = tout.</small></p>
+        <div id="choix-envies" class="puces"></div>
+
+        <div id="bloc-duree">
+          <p class="question">Combien de temps ?</p>
+          <div id="choix-duree" class="puces"></div>
+        </div>
+
+        <button id="bouton-lancer" class="principal">C’est parti !</button>
+        <button id="bouton-retour-categories" class="discret">← Changer de catégorie</button>
       </div>
     </div>
     <p id="attente-hote" class="petit" hidden>L’hôte choisit la catégorie…</p>
@@ -54,7 +80,10 @@
   <main id="ecran-swipe" class="ecran ecran-swipe" hidden>
     <header class="barre">
       <button id="bouton-retour" class="discret" title="Changer de catégorie">←</button>
-      <span id="titre-categorie"></span>
+      <div class="titres">
+        <span id="titre-categorie"></span>
+        <small id="resume-criteres"></small>
+      </div>
       <button id="bouton-matchs" class="pastille">💘 <span id="nombre-matchs">0</span></button>
     </header>
     <ul id="avancement" class="avancement"></ul>

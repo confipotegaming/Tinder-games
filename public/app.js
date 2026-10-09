@@ -101,16 +101,78 @@ $('code-salon').onclick = async () => {
   } catch { /* partage annulé */ }
 };
 
+// Étape 1 : l'hôte choisit une catégorie, puis on passe aux questions.
+let categorieChoisie = null;
+let nombreJoueurs = 2;
+let envies = new Set(lire('envies').split(',').filter(Boolean)); // on se souvient des derniers choix
+let duree = Number(lire('duree')) || 0;
+let questions = { envies: [], durees: [] };
+
+fetch('/questions').then((r) => r.json()).then((q) => { questions = q; }).catch(() => {});
+
+function montrerEtape(etape) {
+  $('etape-categories').hidden = etape !== 'categories';
+  $('etape-questions').hidden = etape !== 'questions';
+  erreur('erreur-salon');
+}
+
 for (const bouton of document.querySelectorAll('[data-categorie]')) {
   bouton.onclick = () => {
-    erreur('erreur-salon', 'Chargement…');
-    for (const b of document.querySelectorAll('[data-categorie]')) b.disabled = true;
-    socket.emit('lancer', { categorie: bouton.dataset.categorie }, (r) => {
-      for (const b of document.querySelectorAll('[data-categorie]')) b.disabled = false;
-      erreur('erreur-salon', r.erreur);
-    });
+    categorieChoisie = bouton.dataset.categorie;
+    nombreJoueurs = etat.joueurs.length;
+    $('titre-questions').textContent = CATEGORIES[categorieChoisie];
+    // Steam ne donne pas la durée des parties : on ne pose pas la question.
+    $('bloc-duree').hidden = categorieChoisie === 'steam';
+    dessinerQuestions();
+    montrerEtape('questions');
   };
 }
+
+// Une « puce » = un bouton qu'on allume ou éteint.
+function puce(texte, allumee, auClic) {
+  const b = document.createElement('button');
+  b.className = 'puce';
+  b.textContent = texte;
+  b.setAttribute('aria-pressed', allumee);
+  b.onclick = auClic;
+  return b;
+}
+
+function dessinerQuestions() {
+  $('nombre-joueurs').textContent = nombreJoueurs;
+  $('bouton-moins').disabled = nombreJoueurs <= 1;
+  $('choix-envies').replaceChildren(...questions.envies.map((e) => puce(`${e.emoji} ${e.nom}`, envies.has(e.cle), () => {
+    if (envies.has(e.cle)) envies.delete(e.cle); else envies.add(e.cle);
+    ecrire('envies', [...envies].join(','));
+    dessinerQuestions();
+  })));
+  $('choix-duree').replaceChildren(...questions.durees.map((d) => puce(
+    `${d.emoji} ${d.nom}${d.detail ? ` (${d.detail})` : ''}`, duree === d.valeur, () => {
+      duree = d.valeur;
+      ecrire('duree', duree);
+      dessinerQuestions();
+    },
+  )));
+}
+
+$('bouton-moins').onclick = () => { nombreJoueurs = Math.max(1, nombreJoueurs - 1); dessinerQuestions(); };
+$('bouton-plus').onclick = () => { nombreJoueurs = Math.min(100, nombreJoueurs + 1); dessinerQuestions(); };
+$('bouton-retour-categories').onclick = () => montrerEtape('categories');
+
+// Étape 2 : on envoie les réponses, le serveur prépare la sélection.
+$('bouton-lancer').onclick = () => {
+  erreur('erreur-salon', 'Je prépare la sélection…');
+  $('bouton-lancer').disabled = true;
+  const criteres = {
+    joueurs: nombreJoueurs,
+    envies: [...envies],
+    duree: categorieChoisie === 'steam' ? 0 : duree,
+  };
+  socket.emit('lancer', { categorie: categorieChoisie, criteres }, (r) => {
+    $('bouton-lancer').disabled = false;
+    erreur('erreur-salon', r.erreur);
+  });
+};
 
 $('bouton-quitter').onclick = () => {
   socket.emit('quitter');
@@ -205,6 +267,7 @@ function dessinerPile() {
 
 function dessinerAvancement() {
   $('titre-categorie').textContent = CATEGORIES[etat.categorie] || '';
+  $('resume-criteres').textContent = etat.criteres;
   $('nombre-matchs').textContent = etat.matchs.length;
   $('bouton-retour').hidden = etat.hoteId !== monId;
   $('avancement').replaceChildren(...etat.joueurs.map((j) => {
@@ -311,7 +374,9 @@ socket.on('salon', (s) => {
     cartes = [];
     mesVotes = {};
     $('fenetre-match').hidden = $('fenetre-liste').hidden = true;
-    erreur('erreur-salon');
+    // En arrivant dans le salon, on repart du choix de catégorie
+    // (si on y est déjà, on ne bouge pas : l'hôte est peut-être en train de répondre).
+    if ($('ecran-salon').hidden) montrerEtape('categories');
     dessinerSalon();
     afficher('salon');
   } else {

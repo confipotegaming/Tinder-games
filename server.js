@@ -5,8 +5,9 @@ const path = require('path');
 const http = require('http');
 const express = require('express');
 const { Server } = require('socket.io');
-const { Salon, nouveauCode, melanger, pourNombreDeJoueurs } = require('./lib/salon');
+const { Salon, nouveauCode, melanger } = require('./lib/salon');
 const steam = require('./lib/steam');
+const criteres = require('./lib/criteres');
 
 const CATEGORIES = {
   web: { nom: 'Jeux web', cartes: () => require('./data/web') },
@@ -25,6 +26,8 @@ function creerServeur({ cleSteam = process.env.STEAM_API_KEY, fetchFn = fetch } 
   const app = express();
   app.use(express.static(path.join(__dirname, 'public')));
   app.get('/sante', (req, res) => res.send('ok'));
+  // Les questions posées à l'hôte (le navigateur les affiche).
+  app.get('/questions', (req, res) => res.json({ envies: criteres.ENVIES, durees: criteres.DUREES }));
 
   const serveur = http.createServer(app);
   const io = new Server(serveur);
@@ -108,21 +111,24 @@ function creerServeur({ cleSteam = process.env.STEAM_API_KEY, fetchFn = fetch } 
       if (!categorie) return ack({ erreur: 'Catégorie inconnue.' });
       const s = salon;
       const joueurs = [...s.joueurs.values()];
+      const reponses = criteres.lireCriteres(d.criteres, joueurs.length);
 
       let cartes;
       try {
         cartes = categorie.cartes
-          ? pourNombreDeJoueurs(categorie.cartes(), joueurs.length)
+          ? categorie.cartes()
           : await steam.jeuxEnCommun(joueurs.filter((j) => j.steam), cleSteam, fetchFn);
       } catch (e) {
         if (!(e instanceof steam.ErreurSteam)) console.error(e);
         return ack({ erreur: e instanceof steam.ErreurSteam ? e.message : 'Impossible de joindre Steam.' });
       }
+      if (cartes.length === 0) return ack({ erreur: 'Aucun jeu Steam en commun.' });
+      cartes = criteres.filtrer(cartes, reponses);
       if (cartes.length === 0) {
-        return ack({ erreur: d.categorie === 'steam' ? 'Aucun jeu Steam en commun.' : `Rien dans « ${categorie.nom} » pour ${joueurs.length} joueur(s).` });
+        return ack({ erreur: 'Aucun jeu ne correspond. Essaie avec plus d’envies ou une durée plus longue.' });
       }
 
-      s.lancer(d.categorie, melanger(cartes));
+      s.lancer(d.categorie, melanger(cartes), criteres.resume(reponses));
       for (const j of s.joueurs.values()) {
         const sock = io.sockets.sockets.get(j.socketId);
         if (sock) envoyerCartes(s, sock, j.id);
@@ -161,6 +167,7 @@ function creerServeur({ cleSteam = process.env.STEAM_API_KEY, fetchFn = fetch } 
         if (s.joueurs.size === 0) salons.delete(s.code);
         else diffuser(s);
       }, DELAI_DECONNEXION);
+      joueur.minuteur.unref(); // ce minuteur n'empêche pas le serveur de s'arrêter
     });
   });
 
