@@ -1,0 +1,18 @@
+# Configuration Render ("Blueprint").
+# Si le Web Service existe déjà, recopier simplement ces valeurs dans ses réglages.
+services:
+  - type: web
+    name: tinder-games
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /sante
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # Clé de l'API Steam (https://steamcommunity.com/dev/apikey).
+      # À remplir dans le tableau de bord Render, jamais dans le code.
+      - key: STEAM_API_KEY
+        sync: false

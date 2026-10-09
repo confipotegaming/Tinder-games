@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#14101f">
+  <title>Tinder-games</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💘</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Accueil : prénom, profil Steam, créer ou rejoindre -->
+  <main id="ecran-accueil" class="ecran">
+    <h1 class="logo">Tinder<span>-games</span></h1>
+    <p class="accroche">Swipez entre amis. Quand <strong>tout le monde</strong> dit oui, c’est un match.</p>
+
+    <label>Ton prénom
+      <input id="nom" maxlength="20" autocomplete="nickname" placeholder="Élisa">
+    </label>
+    <label>Ton profil Steam <small>(facultatif)</small>
+      <input id="steam" maxlength="200" placeholder="https://steamcommunity.com/profiles/…" inputmode="url">
+    </label>
+
+    <button id="bouton-creer" class="principal">Créer un salon</button>
+    <div class="ligne">
+      <input id="code" maxlength="4" placeholder="CODE" autocapitalize="characters" autocomplete="off">
+      <button id="bouton-rejoindre">Rejoindre</button>
+    </div>
+    <p id="erreur-accueil" class="erreur" role="alert"></p>
+  </main>
+
+  <!-- Salon : liste des joueurs, choix de la catégorie -->
+  <main id="ecran-salon" class="ecran" hidden>
+    <p class="petit">Code du salon</p>
+    <button id="code-salon" class="code-salon" title="Copier le lien"></button>
+    <p class="petit">Les amis tapent ce code (ou ouvrent le lien) pour rejoindre.</p>
+
+    <ul id="joueurs" class="joueurs"></ul>
+
+    <div id="choix-hote">
+      <h2>On swipe quoi ?</h2>
+      <div class="categories">
+        <button data-categorie="films">🎬<span>Films</span></button>
+        <button data-categorie="steam">🎮<span>Jeux Steam</span><small>en commun</small></button>
+        <button data-categorie="web">🌐<span>Jeux web</span><small>skribbl, blind test…</small></button>
+        <button data-categorie="bga">🎲<span>Board Game Arena</span></button>
+      </div>
+    </div>
+    <p id="attente-hote" class="petit" hidden>L’hôte choisit la catégorie…</p>
+    <p id="erreur-salon" class="erreur" role="alert"></p>
+    <button id="bouton-quitter" class="discret">Quitter le salon</button>
+  </main>
+
+  <!-- Swipe -->
+  <main id="ecran-swipe" class="ecran ecran-swipe" hidden>
+    <header class="barre">
+      <button id="bouton-retour" class="discret" title="Changer de catégorie">←</button>
+      <span id="titre-categorie"></span>
+      <button id="bouton-matchs" class="pastille">💘 <span id="nombre-matchs">0</span></button>
+    </header>
+    <ul id="avancement" class="avancement"></ul>
+
+    <div id="pile" class="pile"></div>
+    <div id="fin-pile" class="fin-pile" hidden>
+      <p>Tu as tout vu ! 🎉</p>
+      <p class="petit">Les matchs arrivent quand les autres ont fini.</p>
+      <button id="bouton-voir-matchs" class="principal">Voir les matchs</button>
+    </div>
+
+    <div class="boutons-vote">
+      <button id="bouton-non" class="vote non" aria-label="Non">✕</button>
+      <button id="bouton-oui" class="vote oui" aria-label="Oui">♥</button>
+    </div>
+  </main>
+
+  <!-- Fenêtre « C'est un match ! » -->
+  <div id="fenetre-match" class="fenetre" hidden>
+    <div class="contenu">
+      <p class="grand-titre">C’est un match !</p>
+      <div id="carte-match"></div>
+      <button id="bouton-continuer" class="principal">Continuer à swiper</button>
+    </div>
+  </div>
+
+  <!-- Liste des matchs -->
+  <div id="fenetre-liste" class="fenetre" hidden>
+    <div class="contenu">
+      <p class="grand-titre">Vos matchs</p>
+      <ul id="liste-matchs" class="liste-matchs"></ul>
+      <button id="bouton-fermer-liste" class="principal">Fermer</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
