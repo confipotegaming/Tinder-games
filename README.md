@@ -29,8 +29,10 @@ Trois catégories :
   Dans la confidentialité du profil, « Détails des jeux » doit être sur **Public**.
 - Il faut une **clé Steam** dans la variable d’environnement `STEAM_API_KEY`
   (créée sur https://steamcommunity.com/dev/apikey). **Ne jamais l’écrire dans le code.**
-- Le type de chaque jeu (coop, horreur, stratégie…) et « solo ou à plusieurs » viennent
-  du magasin Steam : quand on est plusieurs, les jeux solo sont écartés.
+- Le type de chaque jeu (coop, horreur, stratégie…) vient du magasin Steam.
+- Le **nombre de joueurs** vient de `data/steam-joueurs.js` (liste à la main), sinon de Wikidata.
+  Si personne ne le connaît, un jeu « à plusieurs » compte pour **2 joueurs maximum**, pour ne
+  jamais proposer à 5 un jeu qui se joue à 2. Pour corriger un jeu, l’ajouter dans `data/steam-joueurs.js`.
 
 ## Commandes
 

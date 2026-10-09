@@ -11,7 +11,9 @@ Code, commentaires et textes affichés en français.
 - Questions et tri : `lib/criteres.js` (envies, durées). Chaque jeu web/BGA a ses `envies` et sa `duree`.
 - Steam : `lib/steam.js`, clé dans `STEAM_API_KEY` (jamais dans le code), profil fixe `PROFIL_STEAM`
   dans `server.js` (ou `STEAM_PROFIL`). Les envies Steam viennent des étiquettes du magasin
-  (`IStoreBrowseService/GetItems`, sans clé). Les tests utilisent un faux Steam.
+  (`IStoreBrowseService/GetItems`, sans clé). Nombre de joueurs : `data/steam-joueurs.js`, sinon
+  Wikidata (P1733 = appid Steam, P1872/P1873 = min/max), sinon multi inconnu = [1, 2].
+  Les tests utilisent un faux Steam.
 - Images : boîtes BGA (`x.boardgamearena.net/.../box/fr|en.png`), image de partage des sites web ;
   sans image fiable, on garde l'emoji.
 - Listes : `data/web.js`, `data/bga.js`. Vérifier qu'un nouveau lien BGA existe
