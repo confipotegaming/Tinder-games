@@ -22,12 +22,33 @@ const jeux = [
   ['bloxd', 'Bloxd.io', 'Construction', '🧱', [1, 10], 'Gratuit', 'Un univers en cubes façon Minecraft, avec des mini-jeux à plusieurs.', 'https://bloxd.io', 'dessin detente', 30],
 ];
 
+// Image de présentation de chaque site (celle qui s'affiche quand on partage le lien).
+// Pas d'image fiable pour Codenames, Spyfall et Wikipedia Speedruns : on garde l'emoji.
+// [adresse, entière ?] : « entière » pour les logos carrés qu'il ne faut pas rogner.
+const IMAGES = {
+  skribbl: ['https://skribbl.io/img/thumbnail.png'],
+  'gartic-phone': ['https://garticphone.com/images/thumb.png'],
+  'gartic-io': ['https://gartic.io/static/images/thumb.png'],
+  drawasaurus: ['https://www.drawasaurus.org/_next/static/media/cover.b97fbc1a.png'],
+  bombparty: ['https://jklm.fun/images/icon512.png', true],
+  popsauce: ['https://jklm.fun/images/icon512.png', true],
+  songtrivia: ['https://songtrivia.io/og-default.png'],
+  'petit-bac': ['https://petitbac.net/static/share/share-fr.png'],
+  'make-it-meme': ['https://makeitmeme.com/header.webp'],
+  geoguessr: ['https://www.geoguessr.com/_next/static/media/default.e7343242.webp'],
+  'smash-karts': ['https://smashkarts.io/images/icon-144.png', true],
+  krunker: ['https://assets.krunker.io/promo/og_1200x630.jpg'],
+  bloxd: ['https://bloxd.io/textures/miscImages/bloxd_io_free_online_games.jpg'],
+};
+
 module.exports = jeux.map(([id, titre, genre, emoji, joueurs, prix, description, lien, envies, duree]) => ({
   id: `web-${id}`,
   titre,
   sousTitre: `${joueurs[0]} à ${joueurs[1]} joueurs · ~${duree} min · ${prix}`,
   etiquettes: genre.split(', '),
   emoji,
+  image: IMAGES[id]?.[0],
+  imageEntiere: Boolean(IMAGES[id]?.[1]),
   joueurs,
   envies: envies.split(' '),
   duree,

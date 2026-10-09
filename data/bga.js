@@ -33,12 +33,18 @@ const jeux = [
   ['hearts', 'Hearts (la Dame de pique)', 'Cartes', '♥️', [4, 4], 'Évitez de ramasser les cœurs et surtout la Dame de pique.', 'versus', 30],
 ];
 
+// Image de la boîte, hébergée par BGA. En français quand BGA en a une, sinon en anglais.
+const BOITES_EN_FRANCAIS = ['sechsnimmt', 'saboteur', 'incangold', 'frenchtarot'];
+const boite = (nom) => `https://x.boardgamearena.net/data/gamemedia/${nom}/box/${BOITES_EN_FRANCAIS.includes(nom) ? 'fr' : 'en'}.png`;
+
 module.exports = jeux.map(([nomBga, titre, genre, emoji, joueurs, description, envies, duree]) => ({
   id: `bga-${nomBga}`,
   titre,
   sousTitre: `${joueurs[1] >= 100 ? `À partir de ${joueurs[0]} joueur` : `${joueurs[0]} à ${joueurs[1]} joueurs`} · ~${duree} min`,
   etiquettes: genre.split(', '),
   emoji,
+  image: boite(nomBga),
+  imageEntiere: true, // une boîte : on l'affiche en entier, sans la rogner
   joueurs,
   envies: envies.split(' '),
   duree,

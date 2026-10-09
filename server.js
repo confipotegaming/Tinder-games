@@ -12,8 +12,12 @@ const criteres = require('./lib/criteres');
 const CATEGORIES = {
   web: { nom: 'Jeux web', cartes: () => require('./data/web') },
   bga: { nom: 'Board Game Arena', cartes: () => require('./data/bga') },
-  steam: { nom: 'Jeux Steam', cartes: null }, // dépend des bibliothèques des joueurs
+  steam: { nom: 'Jeux Steam', cartes: null }, // lu dans la bibliothèque Steam (voir PROFIL_STEAM)
 };
+
+// La bibliothèque Steam utilisée pour la catégorie « Jeux Steam » (le profil d'Elizou).
+// On peut en mettre une autre avec la variable d'environnement STEAM_PROFIL.
+const PROFIL_STEAM = process.env.STEAM_PROFIL || 'https://steamcommunity.com/profiles/76561199102603212';
 
 // Combien de temps on garde la place d'un joueur déconnecté (téléphone en veille…).
 const DELAI_DECONNEXION = 60 * 1000;
@@ -22,7 +26,7 @@ function texte(valeur, max) {
   return typeof valeur === 'string' ? valeur.trim().slice(0, max) : '';
 }
 
-function creerServeur({ cleSteam = process.env.STEAM_API_KEY, fetchFn = fetch } = {}) {
+function creerServeur({ cleSteam = process.env.STEAM_API_KEY, profilSteam = PROFIL_STEAM, fetchFn = fetch } = {}) {
   const app = express();
   app.use(express.static(path.join(__dirname, 'public')));
   app.get('/sante', (req, res) => res.send('ok'));
@@ -60,7 +64,7 @@ function creerServeur({ cleSteam = process.env.STEAM_API_KEY, fetchFn = fetch } 
       if (!id || !nom) return 'Il faut un prénom.';
       if (!s.joueurs.has(id) && s.plein) return 'Ce salon est complet.';
       if (salon && salon !== s) quitter();
-      const joueur = s.ajouterJoueur(id, nom, texte(d.steam, 200));
+      const joueur = s.ajouterJoueur(id, nom);
       clearTimeout(joueur.minuteur);
       joueur.socketId = socket.id;
       salon = s;
@@ -98,12 +102,6 @@ function creerServeur({ cleSteam = process.env.STEAM_API_KEY, fetchFn = fetch } 
       ack(erreur ? { erreur } : { code: s.code });
     });
 
-    socket.on('steam', (lien) => {
-      if (!salon) return;
-      salon.joueurs.get(joueurId).steam = texte(lien, 200);
-      diffuser(salon);
-    });
-
     socket.on('lancer', async (d = {}, ack) => {
       if (typeof ack !== 'function') return;
       if (!salon || salon.hoteId !== joueurId) return ack({ erreur: 'Seul l’hôte peut lancer.' });
@@ -117,12 +115,12 @@ function creerServeur({ cleSteam = process.env.STEAM_API_KEY, fetchFn = fetch } 
       try {
         cartes = categorie.cartes
           ? categorie.cartes()
-          : await steam.jeuxEnCommun(joueurs.filter((j) => j.steam), cleSteam, fetchFn);
+          : await steam.jeuxEnCommun([{ nom: 'Temps de jeu', steam: profilSteam }], cleSteam, fetchFn);
       } catch (e) {
         if (!(e instanceof steam.ErreurSteam)) console.error(e);
         return ack({ erreur: e instanceof steam.ErreurSteam ? e.message : 'Impossible de joindre Steam.' });
       }
-      if (cartes.length === 0) return ack({ erreur: 'Aucun jeu Steam en commun.' });
+      if (cartes.length === 0) return ack({ erreur: 'Aucun jeu dans la bibliothèque Steam.' });
       cartes = criteres.filtrer(cartes, reponses);
       if (cartes.length === 0) {
         return ack({ erreur: 'Aucun jeu ne correspond. Essaie avec plus d’envies ou une durée plus longue.' });

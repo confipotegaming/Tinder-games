@@ -7,29 +7,30 @@ Trois catégories :
 
 | Catégorie | D’où viennent les cartes |
 | --- | --- |
-| 🎮 Jeux Steam | Les jeux que **tous** les joueurs ayant donné leur profil Steam possèdent |
-| 🌐 Jeux web | skribbl.io, Gartic Phone, blind test, Codenames… (`data/web.js`) |
-| 🎲 Board Game Arena | Skull, Just One, 6 qui prend… (`data/bga.js`) |
-
-Les jeux web et BGA qui ne se jouent pas avec le nombre de joueurs du salon sont cachés automatiquement.
+| 🎮 Jeux Steam | La bibliothèque Steam d’Elizou, lue automatiquement |
+| 🌐 Jeux web | skribbl.io, Gartic Phone, blind test, Petit Bac… (`data/web.js`) |
+| 🎲 Board Game Arena | Skull, Just One, 6 qui prend… avec l’image de la boîte (`data/bga.js`) |
 
 ## Comment jouer
 
 1. Une personne ouvre le site, écrit son prénom et clique **Créer un salon**.
 2. Les autres tapent le **code à 4 lettres** (ou ouvrent le lien partagé).
-3. L’hôte (👑) choisit la catégorie, et tout le monde swipe.
-4. Le bouton 💘 en haut à droite montre tous les matchs.
+3. L’hôte (👑) choisit la catégorie, puis répond à quelques questions :
+   - **combien de joueurs** ;
+   - **envie de quoi** : coopératif, bluff, dessin, quiz, frissons, tranquille… (rien de coché = tout) ;
+   - **combien de temps** (pas pour Steam, qui ne donne pas la durée des parties).
+4. Seuls les jeux qui correspondent arrivent dans la pile, et tout le monde swipe.
+5. Le bouton 💘 en haut à droite montre tous les matchs.
 
 ## La partie Steam
 
-Steam ne donne la liste des jeux qu’avec une **clé** (gratuite) et un profil public.
-
-- **Chaque joueur** : Steam → Profil → Modifier le profil → Paramètres de confidentialité →
-  « Détails des jeux » sur **Public**. Puis coller le lien de son profil sur la page d’accueil.
-- **Une seule fois, pour le serveur** : créer une clé sur https://steamcommunity.com/dev/apikey
-  (nom de domaine : mettre l’adresse du site, par ex. `tinder-games.onrender.com`).
-  La mettre dans la variable d’environnement `STEAM_API_KEY` (sur Render : *Environment*).
-  **Ne jamais écrire la clé dans le code ni la partager.**
+- Le site lit la bibliothèque du profil https://steamcommunity.com/profiles/76561199102603212
+  (pour en utiliser un autre : variable d’environnement `STEAM_PROFIL`).
+  Dans la confidentialité du profil, « Détails des jeux » doit être sur **Public**.
+- Il faut une **clé Steam** dans la variable d’environnement `STEAM_API_KEY`
+  (créée sur https://steamcommunity.com/dev/apikey). **Ne jamais l’écrire dans le code.**
+- Le type de chaque jeu (coop, horreur, stratégie…) et « solo ou à plusieurs » viennent
+  du magasin Steam : quand on est plusieurs, les jeux solo sont écartés.
 
 ## Commandes
 
@@ -52,6 +53,7 @@ puis ajouter `STEAM_API_KEY` dans *Environment*. (Le fichier `render.yaml` conti
 | --- | --- |
 | `server.js` | Le serveur : salons, votes, envoi des cartes |
 | `lib/salon.js` | Les règles : qui a voté quoi, quand c’est un match |
+| `lib/criteres.js` | Les questions (envies, durées) et le tri des jeux |
 | `lib/steam.js` | Lecture des bibliothèques Steam |
 | `data/*.js` | Les listes de jeux (faciles à compléter) |
 | `public/` | Ce qui s’affiche dans le navigateur (page, style, swipe) |

@@ -9,16 +9,13 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Accueil : prénom, profil Steam, créer ou rejoindre -->
+  <!-- Accueil : prénom, créer ou rejoindre -->
   <main id="ecran-accueil" class="ecran">
     <h1 class="logo">Tinder<span>-games</span></h1>
     <p class="accroche">Swipez entre amis. Quand <strong>tout le monde</strong> dit oui, c’est un match.</p>
 
     <label>Ton prénom
       <input id="nom" maxlength="20" autocomplete="nickname" placeholder="Élisa">
-    </label>
-    <label>Ton profil Steam <small>(facultatif)</small>
-      <input id="steam" maxlength="200" placeholder="https://steamcommunity.com/profiles/…" inputmode="url">
     </label>
 
     <button id="bouton-creer" class="principal">Créer un salon</button>
@@ -42,7 +39,7 @@
       <div id="etape-categories">
         <h2>On swipe quoi ?</h2>
         <div class="categories">
-          <button data-categorie="steam">🎮<span>Jeux Steam</span><small>en commun</small></button>
+          <button data-categorie="steam">🎮<span>Jeux Steam</span><small>ma bibliothèque</small></button>
           <button data-categorie="web">🌐<span>Jeux web</span><small>skribbl, blind test…</small></button>
           <button data-categorie="bga">🎲<span>Board Game Arena</span></button>
         </div>

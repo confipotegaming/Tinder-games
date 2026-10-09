@@ -184,3 +184,5 @@ h2 { margin: 8px 0 0; text-align: center; font-size: 1.2rem; }
 .puce[aria-pressed="true"] { background: var(--rose); border-color: var(--rose); font-weight: 600; }
 .titres { display: flex; flex-direction: column; align-items: center; line-height: 1.2; }
 .titres small { color: var(--gris); font-weight: 400; font-size: .8rem; }
+/* Boîtes de jeux et logos : affichés en entier sur le fond coloré, sans être rognés. */
+.visuel.entiere img { object-fit: contain; padding: 12px; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .45)); }

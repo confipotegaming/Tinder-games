@@ -4,7 +4,7 @@
 const socket = io();
 const $ = (id) => document.getElementById(id);
 
-// --- Petite mémoire du navigateur (prénom, profil Steam, identifiant) ----------------
+// --- Petite mémoire du navigateur (prénom, identifiant) -----------------------------
 function lire(cle, ou = localStorage) {
   try { return ou.getItem(cle) || ''; } catch { return ''; }
 }
@@ -42,15 +42,12 @@ function erreur(ou, message) {
 
 // --- Accueil --------------------------------------------------------------------------
 $('nom').value = lire('nom');
-$('steam').value = lire('steam');
 $('code').value = new URLSearchParams(location.search).get('code') || '';
 
 function infosJoueur() {
   const nom = $('nom').value.trim();
-  const steam = $('steam').value.trim();
   ecrire('nom', nom);
-  ecrire('steam', steam);
-  return { joueurId: monId, nom, steam };
+  return { joueurId: monId, nom };
 }
 
 function entrer(reponse) {
@@ -84,7 +81,7 @@ $('code').onkeydown = (e) => { if (e.key === 'Enter') $('bouton-rejoindre').clic
 // Si la connexion revient (téléphone en veille, réseau qui saute), on reprend sa place.
 socket.on('connect', () => {
   if (codeActuel && lire('nom')) {
-    socket.emit('rejoindre', { joueurId: monId, nom: lire('nom'), steam: lire('steam'), code: codeActuel }, entrer);
+    socket.emit('rejoindre', { joueurId: monId, nom: lire('nom'), code: codeActuel }, entrer);
   }
 });
 
@@ -190,7 +187,6 @@ function dessinerSalon() {
     const li = document.createElement('li');
     li.textContent = j.nom;
     if (j.id === etat.hoteId) li.append(' 👑');
-    if (j.aSteam) li.append(' 🎮');
     if (!j.connecte) li.classList.add('absent');
     if (j.id === monId) li.classList.add('moi');
     return li;
@@ -208,7 +204,7 @@ function creerCarte(carte, classe) {
   const div = document.createElement('article');
   div.className = `carte ${classe}`;
   const visuel = document.createElement('div');
-  visuel.className = 'visuel';
+  visuel.className = carte.imageEntiere ? 'visuel entiere' : 'visuel';
   if (carte.image) {
     const img = document.createElement('img');
     img.src = carte.image;
