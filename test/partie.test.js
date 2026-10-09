@@ -21,21 +21,30 @@ test('deux joueurs, un match', async () => {
     await emettre(tom, 'rejoindre', { joueurId: 'tom', nom: 'Tom', code: code.toLowerCase() });
 
     // Seul l'hôte lance ; Steam sans clé donne un message clair.
-    assert.ok((await emettre(tom, 'lancer', { categorie: 'web' })).erreur);
-    assert.match((await emettre(lea, 'lancer', { categorie: 'steam' })).erreur, /clé Steam/);
+    assert.ok((await emettre(tom, 'lancer', { categories: ['web'] })).erreur);
+    assert.match((await emettre(lea, 'lancer', { categories: ['steam'] })).erreur, /clé Steam/);
 
     const cartesTom = attendre(tom, 'cartes');
-    assert.deepEqual(await emettre(lea, 'lancer', { categorie: 'bga' }), {});
+    assert.deepEqual(await emettre(lea, 'lancer', { categories: ['bga'] }), {});
     const { cartes } = await cartesTom;
     assert.ok(cartes.every((c) => c.id.startsWith('bga-') && c.joueurs[0] <= 2 && c.joueurs[1] >= 2));
 
     // Avec des réponses aux questions : seulement des jeux coop pour 4, et un message si rien ne va.
     const coop = attendre(tom, 'cartes');
-    assert.deepEqual(await emettre(lea, 'lancer', { categorie: 'bga', criteres: { joueurs: 4, envies: ['coop'] } }), {});
+    assert.deepEqual(await emettre(lea, 'lancer', { categories: ['bga'], criteres: { joueurs: 4, envies: ['coop'] } }), {});
     assert.ok((await coop).cartes.every((c) => c.envies.includes('coop') && c.joueurs[1] >= 4));
-    assert.match((await emettre(lea, 'lancer', { categorie: 'web', criteres: { joueurs: 1, envies: ['bluff'] } })).erreur, /Aucun jeu/);
+    assert.match((await emettre(lea, 'lancer', { categories: ['web'], criteres: { joueurs: 1, envies: ['bluff'] } })).erreur, /Aucun jeu/);
+    // Plusieurs sources à la fois : les jeux web et BGA sont mélangés dans la même pile.
+    // (Steam sans clé : message clair, même mélangé avec d'autres sources.)
+    assert.match((await emettre(lea, 'lancer', { categories: ['web', 'steam'] })).erreur, /clé Steam/);
+    assert.ok((await emettre(lea, 'lancer', { categories: [] })).erreur);
+    const melange = attendre(tom, 'cartes');
+    assert.deepEqual(await emettre(lea, 'lancer', { categories: ['web', 'bga', 'web'] }), {});
+    const sources = new Set((await melange).cartes.map((c) => c.id.split('-')[0]));
+    assert.deepEqual([...sources].sort(), ['bga', 'web']);
+
     const nouvelles = attendre(tom, 'cartes');
-    await emettre(lea, 'lancer', { categorie: 'bga', criteres: { joueurs: 2 } });
+    await emettre(lea, 'lancer', { categories: ['bga'], criteres: { joueurs: 2 } });
     const { cartes: cartes2 } = await nouvelles;
 
     const match = attendre(lea, 'match');

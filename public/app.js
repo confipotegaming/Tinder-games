@@ -99,7 +99,7 @@ $('code-salon').onclick = async () => {
 };
 
 // Étape 1 : l'hôte choisit une catégorie, puis on passe aux questions.
-let categorieChoisie = null;
+let categoriesChoisies = new Set(lire('categories').split(',').filter((c) => Object.hasOwn(CATEGORIES, c)));
 let nombreJoueurs = 2;
 let envies = new Set(lire('envies').split(',').filter(Boolean)); // on se souvient des derniers choix
 let duree = Number(lire('duree')) || 0;
@@ -113,17 +113,37 @@ function montrerEtape(etape) {
   erreur('erreur-salon');
 }
 
+// Chaque source s'allume ou s'éteint ; « Suivant » marche dès qu'il y en a au moins une.
+function dessinerSources() {
+  for (const b of document.querySelectorAll('[data-categorie]')) {
+    b.setAttribute('aria-pressed', categoriesChoisies.has(b.dataset.categorie));
+  }
+  $('bouton-suivant').disabled = categoriesChoisies.size === 0;
+}
+
 for (const bouton of document.querySelectorAll('[data-categorie]')) {
   bouton.onclick = () => {
-    categorieChoisie = bouton.dataset.categorie;
-    nombreJoueurs = etat.joueurs.length;
-    $('titre-questions').textContent = CATEGORIES[categorieChoisie];
-    // Steam ne donne pas la durée des parties : on ne pose pas la question.
-    $('bloc-duree').hidden = categorieChoisie === 'steam';
-    dessinerQuestions();
-    montrerEtape('questions');
+    const c = bouton.dataset.categorie;
+    if (categoriesChoisies.has(c)) categoriesChoisies.delete(c); else categoriesChoisies.add(c);
+    ecrire('categories', [...categoriesChoisies].join(','));
+    dessinerSources();
   };
 }
+dessinerSources();
+
+// Les sources dans l'ordre de la page, ex. « 🎮 Jeux Steam + 🎲 Board Game Arena ».
+function nomsDesSources(liste) {
+  return Object.keys(CATEGORIES).filter((c) => liste.includes(c)).map((c) => CATEGORIES[c]).join(' + ');
+}
+
+$('bouton-suivant').onclick = () => {
+  nombreJoueurs = etat.joueurs.length;
+  $('titre-questions').textContent = nomsDesSources([...categoriesChoisies]);
+  // Steam ne donne pas la durée des parties : la question ne sert que pour le web et BGA.
+  $('bloc-duree').hidden = ![...categoriesChoisies].some((c) => c !== 'steam');
+  dessinerQuestions();
+  montrerEtape('questions');
+};
 
 // Une « puce » = un bouton qu'on allume ou éteint.
 function puce(texte, allumee, auClic) {
@@ -163,9 +183,9 @@ $('bouton-lancer').onclick = () => {
   const criteres = {
     joueurs: nombreJoueurs,
     envies: [...envies],
-    duree: categorieChoisie === 'steam' ? 0 : duree,
+    duree: $('bloc-duree').hidden ? 0 : duree,
   };
-  socket.emit('lancer', { categorie: categorieChoisie, criteres }, (r) => {
+  socket.emit('lancer', { categories: [...categoriesChoisies], criteres }, (r) => {
     $('bouton-lancer').disabled = false;
     erreur('erreur-salon', r.erreur);
   });
@@ -242,6 +262,14 @@ function creerCarte(carte, classe) {
   const tampons = document.createElement('div');
   tampons.className = 'tampons';
   tampons.innerHTML = '<span class="tampon oui">OUI</span><span class="tampon non">NON</span>';
+  // Quand plusieurs sources sont mélangées, on indique d'où vient le jeu (ex. « 🎲 Board Game Arena »).
+  const source = carte.id.split('-')[0];
+  if (etat?.categories.length > 1 && CATEGORIES[source]) {
+    const badge = document.createElement('span');
+    badge.className = 'source';
+    badge.textContent = CATEGORIES[source];
+    visuel.append(badge);
+  }
   div.append(visuel, corps, tampons);
   return div;
 }
@@ -262,7 +290,9 @@ function dessinerPile() {
 }
 
 function dessinerAvancement() {
-  $('titre-categorie').textContent = CATEGORIES[etat.categorie] || '';
+  $('titre-categorie').textContent = etat.categories.length > 1
+    ? etat.categories.map((c) => CATEGORIES[c].split(' ')[0]).join(' ') // plusieurs : juste les emojis
+    : CATEGORIES[etat.categories[0]] || '';
   $('resume-criteres').textContent = etat.criteres;
   $('nombre-matchs').textContent = etat.matchs.length;
   $('bouton-retour').hidden = etat.hoteId !== monId;

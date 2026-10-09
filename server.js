@@ -43,7 +43,7 @@ function creerServeur({ cleSteam = process.env.STEAM_API_KEY, profilSteam = PROF
 
   function envoyerCartes(salon, socket, joueurId) {
     socket.emit('cartes', {
-      categorie: salon.categorie,
+      categories: salon.categories,
       cartes: salon.cartes,
       mesVotes: salon.votesDe(joueurId),
       matchs: salon.matchs,
@@ -105,20 +105,26 @@ function creerServeur({ cleSteam = process.env.STEAM_API_KEY, profilSteam = PROF
     socket.on('lancer', async (d = {}, ack) => {
       if (typeof ack !== 'function') return;
       if (!salon || salon.hoteId !== joueurId) return ack({ erreur: 'Seul l’hôte peut lancer.' });
-      const categorie = CATEGORIES[d.categorie];
-      if (!categorie) return ack({ erreur: 'Catégorie inconnue.' });
+      // Une ou plusieurs sources : ['steam', 'web', 'bga'].
+      const categories = [...new Set(Array.isArray(d.categories) ? d.categories : [])].filter((c) => Object.hasOwn(CATEGORIES, c));
+      if (categories.length === 0) return ack({ erreur: 'Choisis au moins une source de jeux.' });
       const s = salon;
       const joueurs = [...s.joueurs.values()];
       const reponses = criteres.lireCriteres(d.criteres, joueurs.length);
 
-      let cartes;
-      try {
-        cartes = categorie.cartes
-          ? categorie.cartes()
-          : await steam.jeuxEnCommun([{ nom: 'Temps de jeu', steam: profilSteam }], cleSteam, fetchFn);
-      } catch (e) {
-        if (!(e instanceof steam.ErreurSteam)) console.error(e);
-        return ack({ erreur: e instanceof steam.ErreurSteam ? e.message : 'Impossible de joindre Steam.' });
+      // On rassemble les jeux de toutes les sources choisies dans une seule pile.
+      let cartes = [];
+      for (const c of categories) {
+        if (CATEGORIES[c].cartes) {
+          cartes.push(...CATEGORIES[c].cartes());
+          continue;
+        }
+        try {
+          cartes.push(...await steam.jeuxEnCommun([{ nom: 'Temps de jeu', steam: profilSteam }], cleSteam, fetchFn));
+        } catch (e) {
+          if (!(e instanceof steam.ErreurSteam)) console.error(e);
+          return ack({ erreur: e instanceof steam.ErreurSteam ? e.message : 'Impossible de joindre Steam.' });
+        }
       }
       if (cartes.length === 0) return ack({ erreur: 'Aucun jeu dans la bibliothèque Steam.' });
       cartes = criteres.filtrer(cartes, reponses);
@@ -126,7 +132,7 @@ function creerServeur({ cleSteam = process.env.STEAM_API_KEY, profilSteam = PROF
         return ack({ erreur: 'Aucun jeu ne correspond. Essaie avec plus d’envies ou une durée plus longue.' });
       }
 
-      s.lancer(d.categorie, melanger(cartes), criteres.resume(reponses));
+      s.lancer(categories, melanger(cartes), criteres.resume(reponses));
       for (const j of s.joueurs.values()) {
         const sock = io.sockets.sockets.get(j.socketId);
         if (sock) envoyerCartes(s, sock, j.id);

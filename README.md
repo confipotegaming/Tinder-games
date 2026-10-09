@@ -3,7 +3,7 @@
 On swipe entre amis, chacun sur son téléphone : **à droite = oui**, **à gauche = non**.
 Quand **tout le monde** a dit oui à la même carte, c’est un **match** !
 
-Trois catégories :
+Trois sources de jeux, à choisir seules ou ensemble (leurs jeux sont alors mélangés) :
 
 | Catégorie | D’où viennent les cartes |
 | --- | --- |
@@ -15,10 +15,10 @@ Trois catégories :
 
 1. Une personne ouvre le site, écrit son prénom et clique **Créer un salon**.
 2. Les autres tapent le **code à 4 lettres** (ou ouvrent le lien partagé).
-3. L’hôte (👑) choisit la catégorie, puis répond à quelques questions :
+3. L’hôte (👑) coche une ou plusieurs sources, puis répond à quelques questions :
    - **combien de joueurs** ;
    - **envie de quoi** : coopératif, bluff, dessin, quiz, frissons, tranquille… (rien de coché = tout) ;
-   - **combien de temps** (pas pour Steam, qui ne donne pas la durée des parties).
+   - **combien de temps** (seulement si le web ou BGA est coché : Steam ne donne pas la durée des parties).
 4. Seuls les jeux qui correspondent arrivent dans la pile, et tout le monde swipe.
 5. Le bouton 💘 en haut à droite montre tous les matchs.
 

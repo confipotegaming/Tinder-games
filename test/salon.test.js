@@ -10,7 +10,7 @@ test('un match seulement quand tout le monde dit oui', () => {
   const s = new Salon('ABCD');
   s.ajouterJoueur('1', 'Léa');
   s.ajouterJoueur('2', 'Tom');
-  s.lancer('web', cartes);
+  s.lancer(['web'], cartes);
   assert.equal(s.voter('1', 'a', true), null);
   assert.equal(s.voter('2', 'a', true).id, 'a');
   assert.deepEqual(s.matchs, ['a']);
@@ -24,7 +24,7 @@ test('le départ d’un joueur peut créer des matchs et passe l’hôte au suiv
   const s = new Salon('ABCD');
   s.ajouterJoueur('1', 'Léa');
   s.ajouterJoueur('2', 'Tom');
-  s.lancer('web', cartes);
+  s.lancer(['web'], cartes);
   s.voter('2', 'b', true);
   assert.deepEqual(s.retirerJoueur('1').map((c) => c.id), ['b']);
   assert.equal(s.hoteId, '2');

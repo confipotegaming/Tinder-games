@@ -35,14 +35,16 @@
     <ul id="joueurs" class="joueurs"></ul>
 
     <div id="choix-hote">
-      <!-- Étape 1 : la catégorie -->
+      <!-- Étape 1 : les sources de jeux (une ou plusieurs) -->
       <div id="etape-categories">
         <h2>On swipe quoi ?</h2>
+        <p class="petit">Coche une ou plusieurs sources : leurs jeux seront mélangés.</p>
         <div class="categories">
-          <button data-categorie="steam">🎮<span>Jeux Steam</span><small>ma bibliothèque</small></button>
-          <button data-categorie="web">🌐<span>Jeux web</span><small>skribbl, blind test…</small></button>
-          <button data-categorie="bga">🎲<span>Board Game Arena</span></button>
+          <button data-categorie="steam" aria-pressed="false">🎮<span>Jeux Steam</span><small>ma bibliothèque</small></button>
+          <button data-categorie="web" aria-pressed="false">🌐<span>Jeux web</span><small>skribbl, blind test…</small></button>
+          <button data-categorie="bga" aria-pressed="false">🎲<span>Board Game Arena</span></button>
         </div>
+        <button id="bouton-suivant" class="principal" disabled>Suivant →</button>
       </div>
 
       <!-- Étape 2 : quelques questions pour trier les jeux -->
@@ -65,10 +67,10 @@
         </div>
 
         <button id="bouton-lancer" class="principal">C’est parti !</button>
-        <button id="bouton-retour-categories" class="discret">← Changer de catégorie</button>
+        <button id="bouton-retour-categories" class="discret">← Changer de sources</button>
       </div>
     </div>
-    <p id="attente-hote" class="petit" hidden>L’hôte choisit la catégorie…</p>
+    <p id="attente-hote" class="petit" hidden>L’hôte choisit les jeux…</p>
     <p id="erreur-salon" class="erreur" role="alert"></p>
     <button id="bouton-quitter" class="discret">Quitter le salon</button>
   </main>
@@ -76,7 +78,7 @@
   <!-- Swipe -->
   <main id="ecran-swipe" class="ecran ecran-swipe" hidden>
     <header class="barre">
-      <button id="bouton-retour" class="discret" title="Changer de catégorie">←</button>
+      <button id="bouton-retour" class="discret" title="Changer de sources">←</button>
       <div class="titres">
         <span id="titre-categorie"></span>
         <small id="resume-criteres"></small>

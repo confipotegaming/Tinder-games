@@ -1,7 +1,8 @@
 # CLAUDE.md — Tinder-games
 
 Appli de « swipe » entre amis (jeux Steam d'Elizou, jeux web, Board Game Arena) :
-l'hôte répond à quelques questions (joueurs, envies, durée), puis un match quand tous disent oui. Voir `README.md`.
+l'hôte coche une ou plusieurs sources (mélangées dans une pile), répond à quelques questions
+(joueurs, envies, durée), puis un match quand tous disent oui. Voir `README.md`.
 
 La porteuse du projet débute en code : **expliquer simplement**, en français, sans jargon inutile.
 Code, commentaires et textes affichés en français.
