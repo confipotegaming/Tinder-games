@@ -87,6 +87,7 @@ label small { opacity: .7; }
 h2 { margin: 8px 0 0; text-align: center; font-size: 1.2rem; }
 .categories { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .categories button { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 2rem; padding: 16px 8px; }
+.categories button:first-child { grid-column: 1 / -1; } /* Steam en grand, les deux autres dessous */
 .categories span { font-size: 1rem; font-weight: 600; }
 .categories small { font-size: .75rem; color: var(--gris); }
 

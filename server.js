@@ -9,7 +9,6 @@ const { Salon, nouveauCode, melanger, pourNombreDeJoueurs } = require('./lib/sal
 const steam = require('./lib/steam');
 
 const CATEGORIES = {
-  films: { nom: 'Films', cartes: () => require('./data/films') },
   web: { nom: 'Jeux web', cartes: () => require('./data/web') },
   bga: { nom: 'Board Game Arena', cartes: () => require('./data/bga') },
   steam: { nom: 'Jeux Steam', cartes: null }, // dépend des bibliothèques des joueurs

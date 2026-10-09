@@ -21,7 +21,7 @@ test('deux joueurs, un match', async () => {
     await emettre(tom, 'rejoindre', { joueurId: 'tom', nom: 'Tom', code: code.toLowerCase() });
 
     // Seul l'hôte lance ; Steam sans clé donne un message clair.
-    assert.ok((await emettre(tom, 'lancer', { categorie: 'films' })).erreur);
+    assert.ok((await emettre(tom, 'lancer', { categorie: 'web' })).erreur);
     assert.match((await emettre(lea, 'lancer', { categorie: 'steam' })).erreur, /clé Steam/);
 
     const cartesTom = attendre(tom, 'cartes');

@@ -1,7 +1,7 @@
 {
   "name": "tinder-games",
   "version": "0.1.0",
-  "description": "On swipe des films et des jeux entre amis : quand tout le monde dit oui, c'est un match !",
+  "description": "On swipe des jeux entre amis : quand tout le monde dit oui, c'est un match !",
   "main": "server.js",
   "private": true,
   "scripts": {

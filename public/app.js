@@ -20,7 +20,6 @@ if (!monId) {
 }
 
 const CATEGORIES = {
-  films: '🎬 Films',
   steam: '🎮 Jeux Steam',
   web: '🌐 Jeux web',
   bga: '🎲 Board Game Arena',
